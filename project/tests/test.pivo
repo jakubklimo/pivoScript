@@ -1,0 +1,4 @@
+dejmi a = 5;
+dejmi b = 3;
+dejmi c = a + b * 2 / 3;
+kecni(c);
