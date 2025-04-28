@@ -2,6 +2,8 @@
 *Lexer.py
 *Parser.py
 *Listener.py
+*Visitor.py
+*.interp
 
 # ANTLR token files
 *.tokens
