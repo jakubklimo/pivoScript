@@ -22,6 +22,54 @@ class Evaluator(PivoScriptVisitor):
         value = self.visit(ctx.expr())
         print(value)
         return value
+    
+    def visitIfStatement(self, ctx):
+        condition = self.visit(ctx.condition())
+        if condition:
+            self.visit(ctx.block(0))
+        elif ctx.block(1):
+            self.visit(ctx.block(1))
+        return None
+
+    def visitBlock(self, ctx):
+        for stmt in ctx.statement():
+            self.visit(stmt)
+        return None
+
+    def visitCondition(self, ctx):
+        return self.visit(ctx.logicalOr())
+
+    def visitLogicalOr(self, ctx):
+        result = self.visit(ctx.logicalAnd(0))
+        for i in range(1, len(ctx.logicalAnd())):
+            result = result or self.visit(ctx.logicalAnd(i))
+        return result
+
+    def visitLogicalAnd(self, ctx):
+        result = self.visit(ctx.logicalNot(0))
+        for i in range(1, len(ctx.logicalNot())):
+            result = result and self.visit(ctx.logicalNot(i))
+        return result
+
+    def visitLogicalNot(self, ctx):
+        if ctx.getChildCount() == 2:  # nenekamo něco
+            return not self.visit(ctx.logicalNot())
+        else:
+            return self.visit(ctx.comparison())
+
+    def visitComparison(self, ctx):
+        if ctx.expr():
+            left = self.visit(ctx.expr(0))
+            right = self.visit(ctx.expr(1))
+            op = ctx.getChild(1).getText()
+            if op == '==':
+                return left == right
+            elif op == '<':
+                return left < right
+            elif op == '>':
+                return left > right
+        else: 
+            return self.visit(ctx.condition())
 
     def visitAddSubExpr(self, ctx):
         result = self.visit(ctx.term(0))

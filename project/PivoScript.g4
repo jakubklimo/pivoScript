@@ -5,11 +5,38 @@ program: statement* ;
 statement
     : varDecl
     | output
+    | ifStatement
     ;
 
 varDecl: 'dejmi' IDENTIFIER '=' expr ';' ;
 
 output: 'kecni' '(' expr ')' ';' ;
+
+ifStatement: 'hele' '(' condition ')' block ('jinac' block)? ;
+
+block: '{' statement* '}' ;
+
+condition
+    : logicalOr
+    ;
+
+logicalOr
+    : logicalAnd ('nebojak' logicalAnd)*
+    ;
+
+logicalAnd
+    : logicalNot ('tojejasny' logicalNot)*
+    ;
+
+logicalNot
+    : 'nenekamo' logicalNot
+    | comparison
+    ;
+
+comparison
+    : expr ('==' | '<' | '>') expr
+    | '(' condition ')'
+    ;
 
 expr
     :   term (( '+' | '-' ) term)*    # addSubExpr

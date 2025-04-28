@@ -1,4 +1,8 @@
-dejmi a = 5;
-dejmi b = 3;
-dejmi c = a + b * 2 / 3;
-kecni(c);
+dejmi a = 10;
+dejmi b = 20;
+
+hele(nenekamo(a > b)) {
+    kecni("A je větší než B");
+} jinac {
+    kecni("A není větší než B");
+}
