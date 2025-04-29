@@ -4,17 +4,25 @@ program: statement* ;
 
 statement
     : varDecl
+    | assignment ';'
     | output
     | ifStatement
+    | forStatement
     ;
 
-varDecl: 'dejmi' IDENTIFIER '=' expr ';' ;
+varDecl: 'dejmi' IDENTIFIER ('=' expr)? ';' ;
 
 output: 'kecni' '(' expr ')' ';' ;
 
 ifStatement: 'hele' '(' condition ')' block ('jinac' block)? ;
 
+forStatement: 'jestejedno' '(' varDecl condition ';' assignment ')' block ;
+
 block: '{' statement* '}' ;
+
+assignment
+    : IDENTIFIER '=' expr
+    ;
 
 condition
     : logicalOr

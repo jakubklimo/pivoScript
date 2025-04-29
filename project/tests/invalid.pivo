@@ -1,0 +1,19 @@
+hele (pivo > rum) 
+    kecni("Pivo vede!");
+
+pivo = 5;
+
+dejmi zbytek = pivo % 2;
+
+dejmi rum = 0b102;
+
+hele (pivo > rum) 
+    kecni("Pivo vede!");
+
+jestejedno (i < 5; i = i + 1) {
+    kecni("Tady něco chybí!");
+}
+
+hele (pivo > rum a nebo jedno < druhy) {
+    kecni("To nefunguje.");
+}

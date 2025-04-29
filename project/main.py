@@ -1,8 +1,24 @@
 import sys
 from antlr4 import *
+from antlr4.error.ErrorListener import ErrorListener
 from PivoScriptLexer import PivoScriptLexer
 from PivoScriptParser import PivoScriptParser
 from PivoScriptVisitor import PivoScriptVisitor
+
+class LexerErrorListener(ErrorListener):
+    def __init__(self):
+        super().__init__()
+
+    def syntaxError(self, recognizer, symbol, line, column, msg, e):
+        raise RuntimeError(f"Lexikální chyba v řádku {line}, sloupec {column}: {msg}")
+
+class StopErrorListener(ErrorListener):
+    def __init__(self):
+        super().__init__()
+
+    def syntaxError(self, recognizer, symbol, line, column, msg, e):
+        raise RuntimeError(f"Chyba v řádku {line}, sloupec {column}: {msg}")
+
 
 class Evaluator(PivoScriptVisitor):
     def __init__(self):
@@ -13,9 +29,11 @@ class Evaluator(PivoScriptVisitor):
 
     def visitVarDecl(self, ctx):
         var_name = ctx.IDENTIFIER().getText()
-        value = self.visit(ctx.expr())
+        if ctx.expr():
+            value = self.visit(ctx.expr())
+        else:
+            value = 0 
         self.symbol_table[var_name] = value
-        #print(f"Uložena proměnná {var_name} = {value}")
         return value
 
     def visitOutput(self, ctx):
@@ -30,6 +48,22 @@ class Evaluator(PivoScriptVisitor):
         elif ctx.block(1):
             self.visit(ctx.block(1))
         return None
+    
+    def visitForStatement(self, ctx):
+        self.visit(ctx.varDecl())
+
+        while self.visit(ctx.condition()):
+            self.visit(ctx.block())
+            self.visit(ctx.assignment())
+        return None
+    
+    def visitAssignment(self, ctx):
+        var_name = ctx.IDENTIFIER().getText()
+        if var_name not in self.symbol_table:
+            raise RuntimeError(f"Chyba: proměnná '{var_name}' nebyla deklarována.")
+        value = self.visit(ctx.expr())
+        self.symbol_table[var_name] = value
+        return value
 
     def visitBlock(self, ctx):
         for stmt in ctx.statement():
@@ -52,7 +86,7 @@ class Evaluator(PivoScriptVisitor):
         return result
 
     def visitLogicalNot(self, ctx):
-        if ctx.getChildCount() == 2:  # nenekamo něco
+        if ctx.getChildCount() == 2:
             return not self.visit(ctx.logicalNot())
         else:
             return self.visit(ctx.comparison())
@@ -78,8 +112,7 @@ class Evaluator(PivoScriptVisitor):
             right = self.visit(ctx.term(i))
 
             if (isinstance(result, str) or isinstance(right, str)) and op == '-':
-                print(f"Chyba: Nelze použít operaci '{op}' s řetězcem")
-                return None
+                raise RuntimeError(f"Chyba: Nelze použít operaci '{op}' s řetězcem")
 
             if isinstance(result, str) and isinstance(right, str) and op == '+':
                 result += right
@@ -99,15 +132,11 @@ class Evaluator(PivoScriptVisitor):
             op = ctx.getChild(2 * i - 1).getText()
             right = self.visit(ctx.factor(i))
 
-            # Chyba při dělení nebo násobení mezi řetězcem a číslem
             if isinstance(result, str) or isinstance(right, str):
-                print(f"Chyba: Nelze použít operaci '{op}' s řetězcem")
-                return None
+                raise RuntimeError(f"Chyba: Nelze použít operaci '{op}' s řetězcem")
 
-            # Kontrola dělení nulou
             if op == '/' and right == 0:
-                print("Chyba: Dělení nulou!")
-                return float('inf')
+                raise RuntimeError("Chyba: Dělení nulou!")
 
             if op == '*':
                 result *= right
@@ -119,21 +148,21 @@ class Evaluator(PivoScriptVisitor):
         return int(ctx.INT().getText())
     
     def visitBinaryExpr(self, ctx):
-        # Odstraníme prefix '0b' a převedeme binární číslo na desítkovou hodnotu
-        bin_value = ctx.BINARY().getText()[2:]  # odstraníme '0b' prefix
-        return int(bin_value, 2)  # převod binárního čísla na desítkové
+        bin_value = ctx.BINARY().getText()[2:]
+        return int(bin_value, 2)
     
     def visitHexExpr(self, ctx):
-        # Odstraníme prefix '0x' a převedeme hexadecimální číslo na desítkovou hodnotu
-        hex_value = ctx.HEX().getText()[2:]  # odstraníme '0x' prefix
-        return int(hex_value, 16)  # převod hexadecimálního čísla na desítkové
+        hex_value = ctx.HEX().getText()[2:]
+        return int(hex_value, 16)
 
     def visitStringExpr(self, ctx):
         return ctx.STRING().getText()[1:-1]
 
     def visitIdExpr(self, ctx):
         var_name = ctx.IDENTIFIER().getText()
-        return self.symbol_table.get(var_name, 0)
+        if var_name not in self.symbol_table:
+            raise RuntimeError(f"Chyba: proměnná '{var_name}' nebyla deklarována.")
+        return self.symbol_table[var_name]
 
     def visitParensExpr(self, ctx):
         return self.visit(ctx.expr())
@@ -147,18 +176,30 @@ def main():
     input_stream = FileStream(sys.argv[1], encoding='utf-8')
 
     lexer = PivoScriptLexer(input_stream)
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(LexerErrorListener())
+
     stream = CommonTokenStream(lexer)
 
     parser = PivoScriptParser(stream)
-    tree = parser.program()
+    parser.removeErrorListeners()
+    parser.addErrorListener(StopErrorListener())
 
-    print(tree.toStringTree(recog=parser))  # Debug: ukáže parsed strom
+    try:
+        print("Začínám parsovat...")
+        tree = parser.program()
+        print("Parsování dokončeno.")
+        print(tree.toStringTree(recog=parser))
 
-    evaluator = Evaluator()
-    evaluator.visit(tree)
+        evaluator = Evaluator()
+        evaluator.visit(tree)
 
-    # Volitelně - můžeš si vypsat symbol_table na konci
-    #print(evaluator.symbol_table)
+    except RuntimeError as e:
+        print(e)
+        sys.exit(1)  # Zastaví program, pokud je chyba při analýze
+    except Exception as e:
+        print(f"Chyba při analýze: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

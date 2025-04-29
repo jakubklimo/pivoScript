@@ -1,8 +1,2 @@
-dejmi a = 10;
-dejmi b = 20;
-
-hele(nenekamo(a > b)) {
-    kecni("A je větší než B");
-} jinac {
-    kecni("A není větší než B");
-}
+dejmi pivo = 0b0101;
+kecni(pivo);
