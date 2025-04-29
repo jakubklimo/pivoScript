@@ -186,17 +186,17 @@ def main():
     parser.addErrorListener(StopErrorListener())
 
     try:
-        print("Začínám parsovat...")
+        #print("Začínám parsovat...")
         tree = parser.program()
-        print("Parsování dokončeno.")
-        print(tree.toStringTree(recog=parser))
+        #print("Parsování dokončeno.")
+        #print(tree.toStringTree(recog=parser))
 
         evaluator = Evaluator()
         evaluator.visit(tree)
 
     except RuntimeError as e:
         print(e)
-        sys.exit(1)  # Zastaví program, pokud je chyba při analýze
+        sys.exit(1)
     except Exception as e:
         print(f"Chyba při analýze: {e}")
         sys.exit(1)

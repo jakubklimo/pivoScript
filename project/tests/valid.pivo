@@ -2,7 +2,7 @@ dejmi pivo = 5;
 dejmi vodka = 0b010110;
 dejmi rum = 0x2a4F;
 dejmi jedno = 2;
-dejmi druhy = 1;
+dejmi druhy = -1;
 
 kecni(vodka);
 kecni(rum);
