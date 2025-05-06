@@ -1,5 +1,25 @@
 # PivoScript
 
+## Jak projekt spustit
+
+```
+git clone https://github.com/jakubklimo/pivoScript.git
+cd pivoScript/project
+```
+
+Vše se ovládá pomocí Makefile - make help - zobrazí všechny dostupné operace s Makefile
+
+```
+make install                    - Vytvoří virtuální prostředí a nainstaluje závislosti
+make build                      - Vygeneruje parser z gramatiky
+make / make run                 - Spustí skript s výchozím testovacím souborem
+make run FILE=tests/valid.pivo  - Spustí skript se zadaným souborem
+make all                        - Spustí vše za vás
+make clean                      - Odstraní vygenerované soubory
+```
+
+## Co projekt umí
+
 **Proměnné**
 ```
 Decimální

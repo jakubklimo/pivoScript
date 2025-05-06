@@ -1,0 +1,32 @@
+{
+	"name": "PivoScript",
+	"fileTypes": ["pivo"],
+	"patterns": [
+	  {
+		"name": "keyword.control.pivoscript",
+		"match": "\\b(hele|jinac|jestejedno|dejmi|kecni)\\b"
+	  },
+	  {
+		"name": "constant.language.boolean.pivoscript",
+		"match": "\\b(true|false)\\b"
+	  },
+	  {
+		"name": "string.quoted.double.pivoscript",
+		"match": "\"([^\"\\\\]|\\\\.)*\""
+	  },
+	  {
+		"name": "constant.numeric.pivoscript",
+		"match": "\\b\\d+(\\.\\d+)?\\b"
+	  },
+	  {
+		"name": "keyword.operator.pivoscript",
+		"match": "(\\+|\\-|\\*|\\/|\\?|:|mix|either|ew|same)"
+	  },
+	  {
+		"name": "punctuation.separator.pivoscript",
+		"match": "[;\\(\\)\\{\\}]"
+	  }
+	],
+	"scopeName": "source.pivoscript"
+  }
+  

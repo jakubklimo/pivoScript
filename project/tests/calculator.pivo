@@ -1,0 +1,30 @@
+dejmi a = 10;
+dejmi b = 3;
+
+dejmi soucet = a + b;
+dejmi rozdil = a - b;
+dejmi soucin = a * b;
+dejmi podil = a / b;
+
+kecni("Sčítání:");
+kecni(soucet);
+
+kecni("Odčítání:");
+kecni(rozdil);
+
+kecni("Násobení:");
+kecni(soucin);
+
+kecni("Dělení:");
+kecni(podil);
+
+hele (soucet > 10) {
+    kecni("Součet je větší než 10.");
+} jinac {
+    kecni("Součet není větší než 10.");
+}
+
+jestejedno (dejmi i = 0; i < b; i = i + 1) {
+    kecni("Opakuji: výsledek sčítání je:");
+    kecni(soucet);
+}

@@ -1,0 +1,25 @@
+{
+  "name": "pivoscript",
+  "displayName": "PivoScript",
+  "description": "Syntax highlighting pro PivoScript",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "pivoscript",
+      "aliases": ["PivoScript", "pivoscript"],
+      "extensions": [".pivo"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "pivoscript",
+      "scopeName": "source.pivoscript",
+      "path": "./syntaxes/pivoscript.tmLanguage.json"
+    }]
+  }
+}
