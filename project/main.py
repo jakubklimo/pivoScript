@@ -4,6 +4,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from PivoScriptLexer import PivoScriptLexer
 from PivoScriptParser import PivoScriptParser
 from PivoScriptVisitor import PivoScriptVisitor
+import os
 
 class LexerErrorListener(ErrorListener):
     def __init__(self):
@@ -21,8 +22,13 @@ class StopErrorListener(ErrorListener):
 
 
 class Evaluator(PivoScriptVisitor):
-    def __init__(self):
+    def __init__(self, output_file):
         self.symbol_table = {}
+        self.output_file = output_file
+
+    def write_output(self, value):
+        with open(self.output_file, "a", encoding="utf-8") as f:
+            f.write(str(value) + "\n")
 
     def visitProgram(self, ctx):
         return self.visitChildren(ctx)
@@ -38,7 +44,7 @@ class Evaluator(PivoScriptVisitor):
 
     def visitOutput(self, ctx):
         value = self.visit(ctx.expr())
-        print(value)
+        self.write_output(value)
         return value
     
     def visitIfStatement(self, ctx):
@@ -171,9 +177,19 @@ class Evaluator(PivoScriptVisitor):
         value = self.visit(ctx.factor())
         return -value
 
+def handle_error(message, output_file):
+    with open(output_file, "a", encoding="utf-8") as f:
+        f.write("ERROR: " + message + "\n")
+    sys.exit(1)
 
 def main():
-    input_stream = FileStream(sys.argv[1], encoding='utf-8')
+    input_file = sys.argv[1]
+    input_stream = FileStream(input_file, encoding='utf-8')
+    output_file = sys.argv[2]
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, "a", encoding="utf-8") as f:
+        f.write("-" * 60)
+        f.write("\nParsing: " + input_file + "\n\n")
 
     lexer = PivoScriptLexer(input_stream)
     lexer.removeErrorListeners()
@@ -191,15 +207,14 @@ def main():
         #print("Parsování dokončeno.")
         #print(tree.toStringTree(recog=parser))
 
-        evaluator = Evaluator()
+        evaluator = Evaluator(output_file)
         evaluator.visit(tree)
 
     except RuntimeError as e:
-        print(e)
-        sys.exit(1)
+        handle_error(str(e), output_file)
     except Exception as e:
         print(f"Chyba při analýze: {e}")
-        sys.exit(1)
+        handle_error(f"Chyba při analýze: {str(e)}", output_file)
 
 if __name__ == '__main__':
     main()

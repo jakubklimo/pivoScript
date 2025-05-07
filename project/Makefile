@@ -5,9 +5,10 @@ VENV_DIR := .venv
 PYTHON := $(VENV_DIR)/bin/python
 PIP := $(VENV_DIR)/bin/pip
 FILE?=tests/calculator.pivo
+OUT_FILE=output/out.txt
 
 run:
-	$(PYTHON) $(FILEPY) ${FILE}
+	$(PYTHON) $(FILEPY) ${FILE} ${OUT_FILE}
 
 all: install build run
 
