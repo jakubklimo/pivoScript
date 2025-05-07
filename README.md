@@ -18,6 +18,14 @@ make all                        - Spustí vše za vás
 make clean                      - Odstraní vygenerované soubory
 ```
 
+Soubor s výstupy se uloží do output/out.txt
+
+Pro nainstalování vscode extension
+
+```
+code --install-extension pivoscript/pivoscript-0.0.1.vsix
+```
+
 ## Co projekt umí
 
 **Proměnné**
