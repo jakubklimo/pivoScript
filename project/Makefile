@@ -24,7 +24,7 @@ clean:
 	rm -f PivoScript*.interp
 	rm -f PivoScript*.tokens
 	rm -f PivoScript*.py
-	rm -r output
+	rm -rf output
 
 help:
 	@echo "make build     - Vygeneruje parser z gramatiky"
